@@ -46,7 +46,10 @@ class Token {
     int noteIndex = sharpNotes.indexOf(note);
     if (noteIndex >= 0) {
       final nextNote = sharpNotes[(noteIndex + value) % 12];
-      return Token("[$nextNote]", isChord: isChord);
+      return Token(
+        "${text.substring(0, match.start)}$nextNote${text.substring(match.end)}",
+        isChord: isChord,
+      );
     }
     noteIndex = flatNotes.indexOf(note);
     if (noteIndex >= 0) {

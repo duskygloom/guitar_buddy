@@ -10,7 +10,7 @@ const minFontSize = 10.0;
 const maxFontSize = 20.0;
 
 const minSpeed = 0.5;
-const maxSpeed = 2.0;
+const maxSpeed = 5.0;
 
 const minTranspose = -12;
 const maxTranspose = 12;

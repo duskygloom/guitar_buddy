@@ -22,6 +22,13 @@ class HomeToolbar extends StatelessWidget {
         },
       ),
       _Tooltile(
+        title: "Pitch detector",
+        icon: Symbols.area_chart_rounded,
+        onPressed: () {
+          // check your voice pitch
+        },
+      ),
+      _Tooltile(
         title: "Chord library",
         icon: Symbols.book_ribbon_rounded,
         onPressed: () {
