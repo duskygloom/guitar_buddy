@@ -22,15 +22,16 @@ class DButils {
           "id text primary key, "
           "title text not null, "
           "artist text not null, "
-          "uploadedOn text not null, "
-          "modifiedOn text not null)";
+          "uploadedOn text, "
+          "modifiedOn text)";
       await db.execute(songsTableQuery);
       // table containing song specific settings
       final songSettingsTableQuery =
           "create table if not exists songSettings ("
           "id text primary key, "
           "transpose num, "
-          "speed num)";
+          "scrollPos num, "
+          "scrollSpeed num)";
       await db.execute(songSettingsTableQuery);
     } finally {
       await db.close();

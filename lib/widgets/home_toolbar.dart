@@ -12,6 +12,7 @@ class HomeToolbar extends StatelessWidget {
         icon: Symbols.speed_rounded,
         onPressed: () {
           // tune your instrument
+          Navigator.pushNamed(context, "/tuner");
         },
       ),
       _Tooltile(
@@ -72,7 +73,9 @@ class _Tooltile extends StatelessWidget {
     return Material(
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
-        onTap: () {},
+        onTap: () {
+          onPressed();
+        },
         child: Card(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

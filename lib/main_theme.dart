@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class MainTheme {
-  static const primaryColor = Color(0xFF902923);
-  static const secondaryColor = Color(0xFFA22C29);
-  static const surfaceColor = Color(0xFF0A100D);
-  static const tertiaryColor = Color(0xFFB9BAA3);
-  static const onPrimaryColor = Color(0xFFD6D5C9);
+  static const primaryColor = Color(0xFFB3B7EE);
+  static const secondaryColor = Color(0xFF9395D3);
+  static const surfaceColor = Color(0xFF000807);
+  static const tertiaryColor = Color(0xFFA2A3BB);
+  static const onPrimaryColor = Color(0xFFFBF9FF);
 
   static ColorScheme _colorScheme(Brightness brightness) {
     return ColorScheme.fromSeed(
@@ -39,11 +39,20 @@ class MainTheme {
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
         ),
-      ),
-      sliderTheme: SliderThemeData(
-        valueIndicatorTextStyle: GoogleFonts.abel(
-          color: colors.onPrimaryContainer,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(width: 2, color: colors.primaryContainer),
         ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(width: 2, color: colors.primaryContainer),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(width: 2, color: colors.errorContainer),
+        ),
+        fillColor: colors.surfaceBright.withAlpha(100),
+        labelStyle: textTheme.labelSmall?.copyWith(color: colors.onSurface),
       ),
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(
@@ -72,6 +81,17 @@ class MainTheme {
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadiusGeometry.circular(10),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ButtonStyle(
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadiusGeometry.circular(10),
+            ),
+          ),
+          backgroundColor: WidgetStatePropertyAll(colors.tertiary),
+          foregroundColor: WidgetStatePropertyAll(colors.onTertiary),
         ),
       ),
     );

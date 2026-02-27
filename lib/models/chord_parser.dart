@@ -58,6 +58,10 @@ class Token {
     }
     return Token(text, isChord: isChord);
   }
+
+  Token operator -(int value) {
+    return this + (-value);
+  }
 }
 
 class ChordParser {
