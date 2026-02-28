@@ -32,14 +32,11 @@ class _TunerMeterState extends State<TunerMeter> {
     super.initState();
     audioRecorder
         .startStream(
-          RecordConfig(
-            encoder: AudioEncoder.pcm16bits,
-            numChannels: 1,
-            noiseSuppress: true,
-          ),
+          RecordConfig(encoder: AudioEncoder.pcm16bits, numChannels: 1),
         )
         .then((stream) {
           audioSubscription = stream.listen((data) async {
+            if (data.length < 4096) return;
             final rawPitch = await pitchDetector.getPitchFromIntBuffer(data);
             if (rawPitch.pitched) {
               final handledPitch = await pitchHandler.handlePitch(
@@ -65,15 +62,24 @@ class _TunerMeterState extends State<TunerMeter> {
 
   @override
   Widget build(BuildContext context) {
-    final value = pitchResult?.diffCents ?? double.nan;
+    final value = -(pitchResult?.diffCents ?? double.nan);
+    // final value = 100.0;
+    final Color valueColor;
+    if (value < -10) {
+      valueColor = Colors.blueAccent;
+    } else if (value > 10) {
+      valueColor = Colors.redAccent;
+    } else {
+      valueColor = Colors.greenAccent;
+    }
+
     final noteToken = Token(
       pitchResult?.note ?? "--",
       isChord: pitchResult != null,
     );
     final expectedPitch = pitchResult?.expectedFrequency ?? double.nan;
-    final actualPitch = pitchResult == null
-        ? double.nan
-        : (pitchResult!.expectedFrequency - pitchResult!.diffFrequency);
+
+    final figureWidth = MediaQuery.sizeOf(context).width.clamp(100, 800);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -83,61 +89,58 @@ class _TunerMeterState extends State<TunerMeter> {
           style: TextStyle(
             fontSize: 36,
             fontWeight: FontWeight.bold,
-            color: ColorScheme.of(context).primary,
+            color: valueColor,
           ),
           textAlign: TextAlign.center,
         ),
-        Text(
-          expectedPitch.isNaN
-              ? "(--)"
-              : "(${expectedPitch.toStringAsFixed(1)} Hz)",
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: ColorScheme.of(context).secondary,
-          ),
-          textAlign: TextAlign.center,
+        SizedBox(height: 30),
+        SizedBox(
+          width: figureWidth - 80,
+          height: (figureWidth - 80) / 2,
+          child: ArcGraph(value: value, valueColor: valueColor),
         ),
-        Row(
-          spacing: 30,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            _NoteText((noteToken - 1).text, textAlign: TextAlign.right),
-            ArcGraph(value: value),
-            _NoteText((noteToken + 1).text, textAlign: TextAlign.left),
-          ],
-        ),
-        Text(
-          expectedPitch.isNaN ? "--" : "${actualPitch.toStringAsFixed(1)} Hz",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: ColorScheme.of(context).secondary,
+        Card(
+          child: SizedBox(
+            width: 120,
+            child: Text(
+              expectedPitch.isNaN
+                  ? "--"
+                  : (value >= 0 ? "+" : "") + value.toStringAsFixed(1),
+              style: TextStyle(
+                fontSize: 36,
+                fontWeight: FontWeight.bold,
+                color: valueColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
-          textAlign: TextAlign.center,
+        ),
+        Container(
+          width: figureWidth.toDouble(),
+          padding: EdgeInsets.symmetric(horizontal: 15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                (noteToken - 1).text,
+                style: TextStyle(
+                  color: Colors.blueAccent,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 36,
+                ),
+              ),
+              Text(
+                (noteToken + 1).text,
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 36,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
-    );
-  }
-}
-
-class _NoteText extends StatelessWidget {
-  const _NoteText(this.note, {this.textAlign});
-
-  final String note;
-  final TextAlign? textAlign;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 40,
-      width: 80,
-      child: Text(
-        note,
-        style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
-        textAlign: textAlign ?? TextAlign.center,
-      ),
     );
   }
 }

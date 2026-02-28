@@ -118,7 +118,8 @@ class DButils {
   static Future<List<Map<String, Object?>>> fetchAllSongs() async {
     final db = await getDB();
     final results = await db.rawQuery(
-      "select * from songs natural join songSettings",
+      "select * from songs natural join songSettings "
+      "order by title, artist",
     );
     return results;
   }
