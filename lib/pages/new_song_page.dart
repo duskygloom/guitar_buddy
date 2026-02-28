@@ -34,21 +34,24 @@ class NewSongPage extends ConsumerWidget {
                 validator: emptyValidator,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 autofocus: true,
+                textInputAction: TextInputAction.next,
               ),
               TextFormField(
                 controller: ref.watch(newSongArtistProvider),
                 decoration: InputDecoration(labelText: "Artist"),
                 validator: emptyValidator,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
+                textInputAction: TextInputAction.next,
               ),
               Expanded(
                 child: TextFormField(
                   controller: ref.watch(newSongContentProvider),
-                  maxLines: 100000,
+                  maxLines: 10000,
                   decoration: InputDecoration(
                     labelText: "Content",
                     alignLabelWithHint: true,
                   ),
+                  textInputAction: TextInputAction.done,
                 ),
               ),
               _SaveButton(songId: songId),
@@ -83,9 +86,7 @@ class _SaveButtonState extends ConsumerState<_SaveButton> {
         if (formKey.currentState?.validate() != true) {
           return;
         }
-        setState(() {
-          loading = true;
-        });
+        setState(() => loading = true);
         try {
           await Song.store(
             Song(
@@ -97,9 +98,7 @@ class _SaveButtonState extends ConsumerState<_SaveButton> {
           );
           await Future.delayed(Duration(milliseconds: 500));
           if (mounted) {
-            setState(() {
-              loading = false;
-            });
+            setState(() => loading = false);
           }
           if (context.mounted) {
             Navigator.pop(context);
@@ -117,9 +116,7 @@ class _SaveButtonState extends ConsumerState<_SaveButton> {
             );
           }
           if (mounted) {
-            setState(() {
-              loading = false;
-            });
+            setState(() => loading = false);
           }
         }
       },
@@ -128,7 +125,9 @@ class _SaveButtonState extends ConsumerState<_SaveButton> {
               child: SizedBox(
                 height: 20,
                 width: 20,
-                child: CircularProgressIndicator(strokeCap: StrokeCap.round),
+                child: CircularProgressIndicator(
+                  color: ColorScheme.of(context).onTertiary,
+                ),
               ),
             )
           : Text("Save"),

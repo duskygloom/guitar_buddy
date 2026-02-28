@@ -37,7 +37,9 @@ class _TunerMeterState extends State<TunerMeter> {
         .then((stream) {
           audioSubscription = stream.listen((data) async {
             if (data.length < 4096) return;
-            final rawPitch = await pitchDetector.getPitchFromIntBuffer(data);
+            final rawPitch = await pitchDetector.getPitchFromIntBuffer(
+              data.sublist(0, 4096),
+            );
             if (rawPitch.pitched) {
               final handledPitch = await pitchHandler.handlePitch(
                 rawPitch.pitch,

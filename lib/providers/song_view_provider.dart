@@ -5,6 +5,7 @@ final fontSizeProvider = StateProvider((ref) => kDefaultFontSize);
 final transposeProvider = StateProvider((ref) => 0);
 final scrollingProvider = StateProvider((ref) => false);
 final scrollSpeedProvider = StateProvider((ref) => 1.0);
+final showSettingsProvider = StateProvider((ref) => false);
 
 const minFontSize = 10.0;
 const maxFontSize = 20.0;

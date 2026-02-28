@@ -94,6 +94,9 @@ class MainTheme {
           foregroundColor: WidgetStatePropertyAll(colors.onTertiary),
         ),
       ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        strokeCap: StrokeCap.round,
+      ),
     );
   }
 

@@ -41,6 +41,14 @@ class _ArcGraphPainter extends CustomPainter {
         ..strokeWidth = 15
         ..strokeCap = StrokeCap.round;
     } else {
+      final Color valueColor;
+      if (value < -10) {
+        valueColor = Colors.blueAccent;
+      } else if (value > 10) {
+        valueColor = Colors.redAccent;
+      } else {
+        valueColor = Colors.greenAccent;
+      }
       valuePaint = Paint()
         ..color = valueColor
         ..style = PaintingStyle.stroke
