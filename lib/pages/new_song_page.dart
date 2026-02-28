@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:guitar_buddy/models/song.dart';
+import 'package:guitar_buddy/providers/home_page_provider.dart';
 import 'package:guitar_buddy/providers/new_song_provider.dart';
 
 class NewSongPage extends ConsumerWidget {
-  const NewSongPage({super.key});
+  const NewSongPage({super.key, this.songId});
+
+  final String? songId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,7 +19,7 @@ class NewSongPage extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text("New Song")),
+      appBar: AppBar(title: Text(songId == null ? "New Song" : "Edit Song")),
       body: Form(
         key: ref.watch(newSongFormKeyProvider),
         child: Padding(
@@ -28,11 +32,14 @@ class NewSongPage extends ConsumerWidget {
                 controller: ref.watch(newSongTitleProvider),
                 decoration: InputDecoration(labelText: "Title"),
                 validator: emptyValidator,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                autofocus: true,
               ),
               TextFormField(
                 controller: ref.watch(newSongArtistProvider),
                 decoration: InputDecoration(labelText: "Artist"),
                 validator: emptyValidator,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
               ),
               Expanded(
                 child: TextFormField(
@@ -44,7 +51,7 @@ class NewSongPage extends ConsumerWidget {
                   ),
                 ),
               ),
-              _SaveButton(),
+              _SaveButton(songId: songId),
             ],
           ),
         ),
@@ -54,6 +61,10 @@ class NewSongPage extends ConsumerWidget {
 }
 
 class _SaveButton extends ConsumerStatefulWidget {
+  const _SaveButton({this.songId});
+
+  final String? songId;
+
   @override
   ConsumerState<_SaveButton> createState() => _SaveButtonState();
 }
@@ -75,11 +86,41 @@ class _SaveButtonState extends ConsumerState<_SaveButton> {
         setState(() {
           loading = true;
         });
-        await Future.delayed(Duration(seconds: 2));
-        if (mounted) {
-          setState(() {
-            loading = false;
-          });
+        try {
+          await Song.store(
+            Song(
+              title: ref.watch(newSongTitleProvider).text,
+              artist: ref.watch(newSongArtistProvider).text,
+              content: ref.watch(newSongContentProvider).text,
+            ),
+            songId: widget.songId,
+          );
+          await Future.delayed(Duration(milliseconds: 500));
+          if (mounted) {
+            setState(() {
+              loading = false;
+            });
+          }
+          if (context.mounted) {
+            Navigator.pop(context);
+            await ref.read(libraryRefreshKeyProvider).currentState?.show();
+          }
+        } catch (e) {
+          await Future.delayed(Duration(milliseconds: 500));
+          if (context.mounted) {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text("Error"),
+                content: Text(e.toString()),
+              ),
+            );
+          }
+          if (mounted) {
+            setState(() {
+              loading = false;
+            });
+          }
         }
       },
       child: loading

@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
+import 'package:path_provider/path_provider.dart';
 
 class HomeToolbar extends StatelessWidget {
   const HomeToolbar({super.key});
@@ -32,8 +35,13 @@ class HomeToolbar extends StatelessWidget {
       _Tooltile(
         title: "Chord library",
         icon: Symbols.book_ribbon_rounded,
-        onPressed: () {
+        onPressed: () async {
           // lists different chords
+          // for now it opens the app folder
+          final appDir = await getApplicationSupportDirectory();
+          if (Platform.isLinux) {
+            await Process.run("xdg-open", [appDir.path]);
+          }
         },
       ),
       _Tooltile(

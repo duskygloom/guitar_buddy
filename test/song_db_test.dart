@@ -1,5 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:guitar_buddy/data/song_data.dart';
-import 'package:guitar_buddy/models/database.dart';
+import 'package:guitar_buddy/models/db_utils.dart';
 import 'package:guitar_buddy/models/song.dart';
 
 Future<void> main() async {
@@ -12,7 +13,9 @@ Future<void> main() async {
     }
     for (final song in completeSongs) {
       if (song == null) {
-        print("Failed to store a song.");
+        if (kDebugMode) {
+          print("Failed to store a song.");
+        }
       }
     }
   } finally {

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:guitar_buddy/models/chord_parser.dart';
 
 void main() {
@@ -51,8 +52,10 @@ moha[B]bbat hui hai [A]mujhe
 [A]Dil jala ke mus[E]kurane ki
 jo [B]aadat hui hai [A]mujhe
 [A]Lag raha hai [E]qayde se ab
-moha[B]bbat hui hai [A]mujhe""";
+moha[B]bbat hui hai (A)mujhe""";
 
   final tokens = ChordParser.parse(content);
-  print(tokens);
+  if (kDebugMode) {
+    print(tokens);
+  }
 }

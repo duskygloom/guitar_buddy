@@ -3,13 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guitar_buddy/models/chord_parser.dart';
+import 'package:guitar_buddy/models/db_utils.dart';
 import 'package:guitar_buddy/models/song.dart';
 import 'package:guitar_buddy/providers/song_view_provider.dart';
 
 class SongContent extends ConsumerStatefulWidget {
   const SongContent({super.key, required this.song});
 
-  final Song song;
+  final CompleteSong song;
 
   @override
   ConsumerState<SongContent> createState() => _SongContentState();
@@ -22,14 +23,24 @@ class _SongContentState extends ConsumerState<SongContent> {
   final scroller = ScrollController();
   Timer? scrollTimer;
 
+  late int transpose;
+  late double scrollSpeed;
+
   @override
   void initState() {
     super.initState();
     fontSize = ref.read(fontSizeProvider);
+    transpose = ref.read(transposeProvider);
+    scrollSpeed = ref.read(scrollSpeedProvider);
   }
 
   @override
   void dispose() {
+    DButils.modifySettings(
+      widget.song.id,
+      transpose: transpose,
+      scrollSpeed: scrollSpeed,
+    ).then((_) {});
     scroller.dispose();
     scrollTimer?.cancel();
     super.dispose();
@@ -41,13 +52,13 @@ class _SongContentState extends ConsumerState<SongContent> {
     }
     scrollTimer = Timer.periodic(Duration(milliseconds: 100), (timer) async {
       if (scroller.hasClients) {
-        final speed = ref.read(speedProvider);
+        final speed = ref.read(scrollSpeedProvider);
         final maxPosition = scroller.position.maxScrollExtent;
         final currPosition = scroller.offset;
-        if (currPosition < maxPosition) {
+        if (currPosition + speed < maxPosition) {
           await scroller.animateTo(
             currPosition + speed,
-            duration: Duration(milliseconds: 90),
+            duration: Duration(milliseconds: 100),
             curve: Curves.linear,
           );
         } else {
@@ -67,7 +78,6 @@ class _SongContentState extends ConsumerState<SongContent> {
   @override
   Widget build(BuildContext context) {
     final scrolling = ref.watch(scrollingProvider);
-    final transpose = ref.watch(transposeProvider);
     final tokens = ChordParser.parse(widget.song.content);
 
     if (scrolling) {
@@ -75,6 +85,17 @@ class _SongContentState extends ConsumerState<SongContent> {
     } else {
       _stopScrolling();
     }
+
+    ref.listen(transposeProvider, (old, curr) {
+      if (mounted) {
+        setState(() => transpose = curr);
+      }
+    });
+    ref.listen(scrollSpeedProvider, (old, curr) {
+      if (mounted) {
+        setState(() => scrollSpeed = curr);
+      }
+    });
 
     return GestureDetector(
       onScaleStart: (details) {

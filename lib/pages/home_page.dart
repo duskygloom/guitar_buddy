@@ -18,15 +18,12 @@ class HomePage extends StatelessWidget {
           children: [
             HomeToolbar(),
             SizedBox(height: 20),
-            AppBar(title: Text("Library"), centerTitle: false),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  await Future.delayed(Duration(seconds: 2));
-                },
-                child: SongLibrary(),
-              ),
+            AppBar(
+              title: Text("Library"),
+              centerTitle: false,
+              forceMaterialTransparency: true,
             ),
+            Expanded(child: SongLibrary()),
           ],
         ),
       ),

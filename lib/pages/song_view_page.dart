@@ -9,7 +9,7 @@ import 'package:material_symbols_icons/material_symbols_icons.dart';
 class SongViewPage extends StatelessWidget {
   const SongViewPage({super.key, required this.song});
 
-  final Song song;
+  final CompleteSong song;
 
   @override
   Widget build(BuildContext context) {

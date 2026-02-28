@@ -54,7 +54,10 @@ class Token {
     noteIndex = flatNotes.indexOf(note);
     if (noteIndex >= 0) {
       final nextNote = flatNotes[(noteIndex + value) % 12];
-      return Token("[$nextNote]", isChord: isChord);
+      return Token(
+        "${text.substring(0, match.start)}$nextNote${text.substring(match.end)}",
+        isChord: isChord,
+      );
     }
     return Token(text, isChord: isChord);
   }
@@ -66,8 +69,8 @@ class Token {
 
 class ChordParser {
   static List<Token> parse(String text) {
-    final splitRegex = RegExp(r"\[[^\]]*\]");
-    final chordRegex = RegExp(r"^\[[A-G][#b]?.*\]$");
+    final splitRegex = RegExp(r"\[[^\]]*\]|\([^\)]*\)");
+    final chordRegex = RegExp(r"^\[[A-G][#b]?.*\]$|^\([A-G][#b]?.*\)$");
     final List<Token> tokens = [];
     int start = 0;
     for (final match in splitRegex.allMatches(text)) {

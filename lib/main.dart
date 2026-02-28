@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guitar_buddy/main_theme.dart';
-import 'package:guitar_buddy/models/database.dart';
+import 'package:guitar_buddy/models/db_utils.dart';
 import 'package:guitar_buddy/pages/home_page.dart';
 import 'package:guitar_buddy/pages/new_song_page.dart';
 import 'package:guitar_buddy/pages/tuner_page.dart';

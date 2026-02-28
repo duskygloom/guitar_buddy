@@ -25,15 +25,15 @@ class SongViewSettingDialog extends StatelessWidget {
             Consumer(
               builder: (context, ref, child) => _NumberInputTile(
                 title: "Scroll speed",
-                value: "${ref.watch(speedProvider)}",
+                value: "${ref.watch(scrollSpeedProvider)}",
                 addFunction: () {
-                  if (ref.read(speedProvider) < maxSpeed) {
-                    ref.read(speedProvider.notifier).state += 0.5;
+                  if (ref.read(scrollSpeedProvider) < maxSpeed) {
+                    ref.read(scrollSpeedProvider.notifier).state += 0.5;
                   }
                 },
                 removeFunction: () {
-                  if (ref.read(speedProvider) > minSpeed) {
-                    ref.read(speedProvider.notifier).state -= 0.5;
+                  if (ref.read(scrollSpeedProvider) > minSpeed) {
+                    ref.read(scrollSpeedProvider.notifier).state -= 0.5;
                   }
                 },
               ),
