@@ -55,6 +55,7 @@ class HomeToolbar extends StatelessWidget {
     return SizedBox(
       height: 100,
       child: ListView.separated(
+        shrinkWrap: true,
         scrollDirection: Axis.horizontal,
         itemCount: items.length,
         itemBuilder: (context, index) =>

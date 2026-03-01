@@ -27,8 +27,9 @@ class TunerPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text("Tuner")),
-      body: Padding(
+      body: Container(
         padding: EdgeInsets.all(10).copyWith(bottom: kToolbarHeight),
+        alignment: Alignment.topCenter,
         child: FutureBuilder(
           future: futurePermission(),
           builder: (context, snapshot) {

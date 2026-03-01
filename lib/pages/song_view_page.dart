@@ -44,81 +44,73 @@ class SongViewPage extends StatelessWidget {
 class _ViewSettings extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transposeControl = _NumberInputTile(
-      title: "Transpose",
-      value: "${ref.watch(transposeProvider)}",
-      addFunction: () {
-        if (ref.read(transposeProvider) < maxTranspose) {
-          ref.read(transposeProvider.notifier).state++;
-        }
-      },
-      removeFunction: () {
-        if (ref.read(transposeProvider) > minTranspose) {
-          ref.read(transposeProvider.notifier).state--;
-        }
-      },
-    );
-
-    final scrollSpeedControl = _NumberInputTile(
-      title: "Scroll speed",
-      value: "${ref.watch(scrollSpeedProvider)}",
-      addFunction: () {
-        if (ref.read(scrollSpeedProvider) < maxSpeed) {
-          ref.read(scrollSpeedProvider.notifier).state += 0.5;
-        }
-      },
-      removeFunction: () {
-        if (ref.read(scrollSpeedProvider) > minSpeed) {
-          ref.read(scrollSpeedProvider.notifier).state -= 0.5;
-        }
-      },
-      addIcon: Symbols.fast_forward_rounded,
-      removeIcon: Symbols.fast_rewind_rounded,
-    );
-
-    final fontSizeControl = _NumberInputTile(
-      title: "Font size",
-      value: "${ref.watch(fontSizeProvider)}",
-      addFunction: () {
-        if (ref.read(fontSizeProvider) < maxFontSize) {
-          ref.read(fontSizeProvider.notifier).state++;
-        }
-      },
-      removeFunction: () {
-        if (ref.read(fontSizeProvider) > minFontSize) {
-          ref.read(fontSizeProvider.notifier).state--;
-        }
-      },
-      addIcon: Symbols.zoom_in_rounded,
-      removeIcon: Symbols.zoom_out_rounded,
-    );
-
-    final divider = SizedBox(
-      height: 30,
-      child: VerticalDivider(
-        width: 40,
-        thickness: 2,
-        radius: BorderRadius.circular(1000),
+    final List<Widget> items = [
+      _NumberInputTile(
+        title: "Transpose",
+        value: "${ref.watch(transposeProvider)}",
+        addFunction: () {
+          if (ref.read(transposeProvider) < maxTranspose) {
+            ref.read(transposeProvider.notifier).state++;
+          }
+        },
+        removeFunction: () {
+          if (ref.read(transposeProvider) > minTranspose) {
+            ref.read(transposeProvider.notifier).state--;
+          }
+        },
       ),
-    );
+      _NumberInputTile(
+        title: "Scroll speed",
+        value: "${ref.watch(scrollSpeedProvider)}",
+        addFunction: () {
+          if (ref.read(scrollSpeedProvider) < maxSpeed) {
+            ref.read(scrollSpeedProvider.notifier).state += 0.5;
+          }
+        },
+        removeFunction: () {
+          if (ref.read(scrollSpeedProvider) > minSpeed) {
+            ref.read(scrollSpeedProvider.notifier).state -= 0.5;
+          }
+        },
+        addIcon: Symbols.fast_forward_rounded,
+        removeIcon: Symbols.fast_rewind_rounded,
+      ),
+      _NumberInputTile(
+        title: "Font size",
+        value: "${ref.watch(fontSizeProvider)}",
+        addFunction: () {
+          if (ref.read(fontSizeProvider) < maxFontSize) {
+            ref.read(fontSizeProvider.notifier).state++;
+          }
+        },
+        removeFunction: () {
+          if (ref.read(fontSizeProvider) > minFontSize) {
+            ref.read(fontSizeProvider.notifier).state--;
+          }
+        },
+        addIcon: Symbols.zoom_in_rounded,
+        removeIcon: Symbols.zoom_out_rounded,
+      ),
+    ];
 
     return ref.watch(showSettingsProvider)
         ? Container(
             height: 100,
             color: ColorScheme.of(context).surfaceContainer,
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: SingleChildScrollView(
+            alignment: Alignment.center,
+            child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  transposeControl,
-                  divider,
-                  scrollSpeedControl,
-                  divider,
-                  fontSizeControl,
-                ],
+              shrinkWrap: true,
+              itemBuilder: (context, index) => items[index],
+              separatorBuilder: (context, index) => VerticalDivider(
+                width: 40,
+                thickness: 2,
+                radius: BorderRadius.circular(1000),
+                indent: 30,
+                endIndent: 30,
               ),
+              itemCount: items.length,
             ),
           )
         : SizedBox.shrink();
