@@ -51,7 +51,7 @@ class NewSongPage extends ConsumerWidget {
                     labelText: "Content",
                     alignLabelWithHint: true,
                   ),
-                  textInputAction: TextInputAction.done,
+                  textInputAction: TextInputAction.newline,
                 ),
               ),
               _SaveButton(songId: songId),

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Guitar Buddy
+Version=1.0
+Comment=Guitar utility application.
+Keywords=guitar;tuner;metronome;chords;
+Exec=/home/hans/.local/lib/guitar_buddy/guitar_buddy
+Icon=app.duskygloom.guitar_buddy
+Type=Application
+Terminal=false
+StartupNotify=false
+Categories=Utility;

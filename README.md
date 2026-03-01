@@ -1,16 +1,28 @@
-# guitar_buddy
+# Guitar Buddy
+Guitar utility application.
 
-A new Flutter project.
+## Features
+1. Chord library
+    1. Offline
+    2. Transpose
+    3. Autoscroll
+2. Tuner
+3. Metronome (planned)
+4. Chord sync from nearby devices (planned)
 
-## Getting Started
+## Installation
 
-This project is a starting point for a Flutter application.
+### Android
+1. Download apk file from releases.
+2. Install it.
 
-A few resources to get you started if this is your first Flutter project:
+### Linux
+1. Download linux release zip file from releases.
+2. Follow README.md in the zip file to install it.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Common issues and fixes
+
+### Unable to pinch to change lyrics text size.
+1. This occurs because the lyrics section is out of focus after interacting with some other page element.
+2. Click on the lyrics section then try pinching to change lyrics size.
