@@ -19,6 +19,7 @@ class SongViewPage extends StatelessWidget {
         title: Text(song.title),
         actions: [
           IconButton(
+            tooltip: "Copy song",
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: song.content));
             },
@@ -35,7 +36,16 @@ class SongViewPage extends StatelessWidget {
           children: [Expanded(child: SongContent(song: song))],
         ),
       ),
-      floatingActionButton: _ViewFloatingButton(),
+      floatingActionButton: Consumer(
+        builder: (context, ref, child) => AnimatedSlide(
+          duration: Duration(milliseconds: 200),
+          offset: ref.watch(songScrollingProvider)
+              ? Offset(1.5, 0)
+              : Offset.zero,
+          curve: Curves.easeInOutCirc,
+          child: _ViewFloatingButton(),
+        ),
+      ),
       bottomNavigationBar: _ViewSettings(),
     );
   }
@@ -191,7 +201,7 @@ class _ScrollButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scrolling = ref.watch(scrollingProvider);
     return IconButton.filledTonal(
-      tooltip: "Scroll",
+      tooltip: "Autoscroll",
       onPressed: () {
         ref.read(scrollingProvider.notifier).state = !ref.read(
           scrollingProvider,

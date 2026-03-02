@@ -1,4 +1,4 @@
-$!/usr/bin/bash
+#!/usr/bin/bash
 
 echo "1. Copy application to $HOME/.local/lib/guitar_buddy"
 cp -R "../build/linux/x64/release/bundle" "$HOME/.local/lib/guitar_buddy"

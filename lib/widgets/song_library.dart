@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guitar_buddy/models/song.dart';
 import 'package:guitar_buddy/providers/home_page_provider.dart';
@@ -54,18 +55,29 @@ class _SongLibraryInstanceState extends ConsumerState<_SongLibraryInstance> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      key: ref.watch(libraryRefreshKeyProvider),
-      onRefresh: () async {
-        songs = await Song.fetchAll();
-        setState(() {});
+    return NotificationListener<UserScrollNotification>(
+      onNotification: (notification) {
+        if (notification.direction == ScrollDirection.reverse) {
+          ref.read(libraryScrollingProvider.notifier).state = true;
+        }
+        if (notification.direction == ScrollDirection.forward) {
+          ref.read(libraryScrollingProvider.notifier).state = false;
+        }
+        return true;
       },
-      child: songs.isEmpty
-          ? _EmptyList()
-          : ListView.builder(
-              itemCount: songs.length,
-              itemBuilder: (context, index) => SongTile(song: songs[index]),
-            ),
+      child: RefreshIndicator(
+        key: ref.watch(libraryRefreshKeyProvider),
+        onRefresh: () async {
+          songs = await Song.fetchAll();
+          setState(() {});
+        },
+        child: songs.isEmpty
+            ? _EmptyList()
+            : ListView.builder(
+                itemCount: songs.length,
+                itemBuilder: (context, index) => SongTile(song: songs[index]),
+              ),
+      ),
     );
   }
 }
