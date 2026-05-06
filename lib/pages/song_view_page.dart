@@ -39,7 +39,8 @@ class SongViewPage extends StatelessWidget {
       floatingActionButton: Consumer(
         builder: (context, ref, child) => AnimatedSlide(
           duration: Duration(milliseconds: 200),
-          offset: ref.watch(songScrollingProvider)
+          offset:
+              ref.watch(songScrollingProvider) || ref.watch(scrollingProvider)
               ? Offset(1.5, 0)
               : Offset.zero,
           curve: Curves.easeInOutCirc,
