@@ -29,11 +29,9 @@ class HomePage extends StatelessWidget {
         ),
       ),
       floatingActionButton: Consumer(
-        builder: (context, ref, child) => AnimatedSlide(
-          duration: Duration(milliseconds: 200),
-          offset: ref.watch(libraryScrollingProvider)
-              ? Offset(1.5, 0)
-              : Offset.zero,
+        builder: (context, ref, child) => AnimatedScale(
+          duration: Duration(milliseconds: 400),
+          scale: ref.watch(libraryScrollingProvider) ? 0.0 : 1.0,
           curve: Curves.easeInOutCirc,
           child: _ActionButton(),
         ),
