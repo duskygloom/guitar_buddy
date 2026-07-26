@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:guitar_buddy/models/chord_parser.dart';
+import 'package:guitar_buddy/features/tuner/models/chord_parser.dart';
 
 void main() {
   final content = """

@@ -7,8 +7,9 @@ Guitar utility application.
     2. Transpose
     3. Autoscroll
 2. Tuner
-3. Metronome (planned)
-4. Chord sync from nearby devices (planned)
+3. Metronome
+4. Pitch monitor
+5. Chord sync from nearby devices (planned)
 
 ## Installation
 
@@ -17,8 +18,8 @@ Guitar utility application.
 2. Install it.
 
 ### Linux
-1. Download linux release zip file from releases.
-2. Follow README.md in the zip file to install it.
+1. Download AppImage from releases.
+2. Execute.
 
 
 ## Common issues and fixes
@@ -26,3 +27,6 @@ Guitar utility application.
 ### Unable to pinch to change lyrics text size.
 1. This occurs because the lyrics section is out of focus after interacting with some other page element.
 2. Click on the lyrics section then try pinching to change lyrics size.
+
+### Unstable pitch monitor behaviour.
+1. I plan to fix it soon.

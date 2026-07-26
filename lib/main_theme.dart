@@ -2,26 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class MainTheme {
-  static const primaryColor = Color(0xFFB3B7EE);
-  static const secondaryColor = Color(0xFF9395D3);
-  static const surfaceColor = Color(0xFF000807);
-  static const tertiaryColor = Color(0xFFA2A3BB);
-  static const onPrimaryColor = Color(0xFFFBF9FF);
+  static const color1 = Color(0xFF040F0F);
+  static const color2 = Color(0xFFC9FBFF);
+  static const color3 = Color(0xFF85BDBF);
+  static const color4 = Color(0xFFC2FCF7);
+  static const color5 = Color(0xFF57737A);
 
   static ColorScheme _colorScheme(Brightness brightness) {
+    final Color primaryColor;
+    if (brightness == Brightness.dark) {
+      primaryColor = color3;
+    } else {
+      primaryColor = color5;
+    }
     return ColorScheme.fromSeed(
       seedColor: primaryColor,
       brightness: brightness,
-      primary: primaryColor,
-      secondary: secondaryColor,
-      tertiary: tertiaryColor,
-      surface: surfaceColor,
     );
   }
 
   static ThemeData _themeData(ColorScheme colors) {
     final typography = Typography.material2021(colorScheme: colors);
-    final textTheme = GoogleFonts.abelTextTheme(typography.white);
+    final TextTheme textTheme;
+    final Color inputFill;
+    if (colors.brightness == Brightness.dark) {
+      textTheme = GoogleFonts.abelTextTheme(typography.white);
+      inputFill = colors.surfaceBright;
+    } else {
+      textTheme = GoogleFonts.abelTextTheme(typography.black);
+      inputFill = colors.surfaceDim;
+    }
+
     return ThemeData.from(colorScheme: colors, textTheme: textTheme).copyWith(
       appBarTheme: AppBarTheme(
         centerTitle: true,
@@ -41,17 +52,17 @@ class MainTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(width: 2, color: colors.primaryContainer),
+          borderSide: BorderSide(width: 2, color: colors.primary),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(width: 2, color: colors.primaryContainer),
+          borderSide: BorderSide(width: 2, color: colors.primary),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(width: 2, color: colors.errorContainer),
         ),
-        fillColor: colors.surfaceBright.withAlpha(100),
+        fillColor: inputFill.withAlpha(100),
         labelStyle: textTheme.labelSmall?.copyWith(color: colors.onSurface),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -101,5 +112,7 @@ class MainTheme {
   }
 
   static ThemeData get darkTheme => _themeData(_colorScheme(Brightness.dark));
-  // static ThemeData get lightTheme => _themeData(_colorScheme(Brightness.light));
+  static ThemeData get lightTheme => _themeData(_colorScheme(Brightness.light));
+
+  static Duration get clickDelay => Duration(milliseconds: 150);
 }

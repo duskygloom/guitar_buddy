@@ -1,0 +1,17 @@
+output: dist/
+
+releases:
+  - name: linux-build
+    jobs:
+      - name: release-android
+        package:
+          platform: android
+          target: apk
+          build_args:
+            split-per-abi:
+
+      - name: release-linux
+        package:
+          platform: linux
+          target: appimage
+
