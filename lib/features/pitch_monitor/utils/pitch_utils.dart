@@ -20,6 +20,24 @@ class PitchUtils {
     return 12 * math.log(pitch / 440) / math.log(2) + 69;
   }
 
+  static bool noteIsSharp(double note) {
+    switch (note.floor() % 12) {
+      case 1:
+      case 3:
+      case 6:
+      case 8:
+      case 10:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  static double noteToPitch(double note) {
+    final a = (note - 69) / 12;
+    return math.pow(2, a) * 440;
+  }
+
   static String noteToString(double note) {
     return "${notes[note.round() % 12]}${note.round() ~/ 12 - 1}";
   }

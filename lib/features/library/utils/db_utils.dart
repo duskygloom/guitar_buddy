@@ -46,7 +46,7 @@ class DButils {
       final int newId;
       final DateTime uploadedOn;
       final now = DateTime.now();
-      final modifiedOn = DateTimeUtils.format(now);
+      final modifiedOn = DateTimeUtils.formatDatetime(now);
 
       // fresh insert
       if (songId == null) {

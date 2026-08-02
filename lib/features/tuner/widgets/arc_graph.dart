@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
@@ -34,48 +34,38 @@ class _ArcGraphPainter extends CustomPainter {
       ..strokeWidth = 20
       ..strokeCap = StrokeCap.round;
 
-    final Paint valuePaint;
-    if (value.isNaN) {
-      valuePaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 30
-        ..strokeCap = StrokeCap.butt
-        ..color = ColorScheme.of(context).surfaceContainer;
-    } else {
-      final Color valueColor;
-      if (value < -10) {
-        valueColor = Colors.blueAccent;
-      } else if (value > 10) {
-        valueColor = Colors.redAccent;
-      } else {
-        valueColor = Colors.greenAccent;
-      }
-      valuePaint = Paint()
-        ..color = valueColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 30
-        ..strokeCap = StrokeCap.butt;
-    }
+    final Paint valuePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 34
+      ..strokeCap = StrokeCap.butt
+      ..color = value.isNaN
+          ? ColorScheme.of(context).surfaceContainer
+          : valueColor;
 
     final surfacePaint = Paint()
       ..color = ColorScheme.of(context).surface
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 30
+      ..strokeWidth = 20
       ..strokeCap = StrokeCap.butt;
 
-    canvas.drawArc(rect, pi, pi, false, backgroundPaint);
+    canvas.drawArc(rect, 0, -math.pi, false, backgroundPaint);
 
-    final sweep = value.isNaN ? 0.0 : (value / 100) * pi / 2;
-    final width = 0.02;
+    final sweep = value.isNaN ? 0.0 : (value / 100) * math.pi / 2;
+    final width = 0.03;
     canvas.drawArc(
       rect,
-      -pi / 2 + sweep - width * 2,
+      -math.pi / 2 + sweep - width * 2,
       width * 4,
       false,
       surfacePaint,
     );
-    canvas.drawArc(rect, -pi / 2 + sweep - width / 2, width, false, valuePaint);
-    // canvas.drawArc(rect, -pi / 2, sweep, false, valuePaint);
+    canvas.drawArc(
+      rect,
+      -math.pi / 2 + sweep - width / 2,
+      width,
+      false,
+      valuePaint,
+    );
   }
 
   @override

@@ -26,8 +26,15 @@ dependencies:
   open_file: ^4.0.0
 
   pitchupdart:
-    path: ../pitchup_dart
+    git:
+      url: https://github.com/duskygloom/pitchup_dart
+      ref: master
+    # path: ../pitchup_dart
+    
   pitch_detector_dart:
+    # git:
+    #   url: https://github.com/duskygloom/pitch_detector_dart
+    #   ref: master
     path: ../pitch_detector_dart
 
 dev_dependencies:
@@ -37,7 +44,11 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
   fastforge:
-    path: ../flutter_distributor/packages/fastforge
+    git:
+      url: https://github.com/duskygloom/flutter_distributor
+      ref: hans
+      path: packages/fastforge
+    # path: ../flutter_distributor/packages/fastforge
 
 flutter:
   uses-material-design: true

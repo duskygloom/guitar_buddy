@@ -3,15 +3,21 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:guitar_buddy/features/pitch_monitor/utils/pitch_utils.dart';
+import 'package:guitar_buddy/features/pitch_monitor/widgets/pitch_chart.dart';
+import 'package:guitar_buddy/features/tuner/widgets/snackbars.dart';
+import 'package:guitar_buddy/main_theme.dart';
 import 'package:pitch_detector_dart/pitch_detector.dart';
+import 'package:pitch_detector_dart/pitch_detector_result.dart';
 import 'package:pitchupdart/instrument_type.dart';
 import 'package:pitchupdart/pitch_handler.dart';
 import 'package:pitchupdart/pitch_result.dart';
-import 'package:record/record.dart';
 
 import 'package:guitar_buddy/features/tuner/models/chord_parser.dart';
 import 'package:guitar_buddy/features/tuner/models/pitch_calculator.dart';
 import 'package:guitar_buddy/features/tuner/widgets/arc_graph.dart';
+import 'package:pitchupdart/tuning_status.dart';
+import 'package:record/record.dart';
 
 class TunerMeter extends StatefulWidget {
   const TunerMeter({super.key});
@@ -21,64 +27,125 @@ class TunerMeter extends StatefulWidget {
 }
 
 class _TunerMeterState extends State<TunerMeter> {
-  final audioRecorder = AudioRecorder();
-  final pitchDetector = PitchDetector.YIN();
-  final pitchHandler = PitchHandler(InstrumentType.guitar);
-  late StreamSubscription<Uint8List> audioSubscription;
-  PitchResult? pitchResult;
-  String? processedNote;
+  final bufferSize = PitchDetector.DEFAULT_BUFFER_SIZE;
+  late final hopSize = bufferSize ~/ 2;
+
+  final _audioRecorder = AudioRecorder();
+  late final _pitchDetector = PitchDetector.YINFFI(
+    bufferSize: bufferSize,
+    tolerance: 0.1,
+    minFreq: PitchUtils.noteToPitch(PitchChart.minNote),
+    maxFreq: PitchUtils.noteToPitch(PitchChart.maxNote),
+  );
+  final _pitchHandler = PitchHandler(InstrumentType.guitar);
+  late StreamSubscription<Uint8List> _audioSubscription;
+  PitchResult? _pitchResult;
+  String? _processedNote;
+
+  List<int> _audioBuffer = [];
 
   @override
   void initState() {
     super.initState();
-    audioRecorder
+
+    _audioRecorder
         .startStream(
-          RecordConfig(encoder: AudioEncoder.pcm16bits, numChannels: 1),
+          RecordConfig(
+            encoder: AudioEncoder.pcm16bits,
+            numChannels: 1,
+            noiseSuppress: true,
+            streamBufferSize: 2 * bufferSize,
+          ),
         )
         .then((stream) {
-          audioSubscription = stream.listen((data) async {
-            if (data.length < 4096) return;
-            final rawPitch = await pitchDetector.getPitchFromIntBuffer(
-              data.sublist(0, 4096),
-            );
-            if (rawPitch.pitched) {
-              final handledPitch = pitchHandler.handlePitch(rawPitch.pitch);
-              if (handledPitch.note.isNotEmpty) {
-                setState(() {
-                  pitchResult = handledPitch;
-                  processedNote = PitchCalculator.pitchToNote(rawPitch.pitch);
-                });
+          _audioSubscription = stream.listen(
+            (data) async {
+              // implementing rolling buffer
+              final collection = <PitchDetectorResult>[];
+              for (
+                _audioBuffer.addAll(data);
+                _audioBuffer.length >= 2 * bufferSize;
+                _audioBuffer = _audioBuffer.sublist(hopSize)
+              ) {
+                final rawPitch = await _pitchDetector.getPitchFromIntBuffer(
+                  Uint8List.fromList(_audioBuffer.sublist(0, 2 * bufferSize)),
+                );
+                if (rawPitch.pitched) {
+                  collection.add(rawPitch);
+                }
               }
-            }
-          });
+
+              // choose median
+              final medianPitch = PitchUtils.computeMedian(
+                collection,
+                (t) => t.pitch,
+              );
+
+              if (medianPitch != null && medianPitch.pitched) {
+                final handledPitch = _pitchHandler.handlePitch(
+                  medianPitch.pitch,
+                );
+                if (handledPitch.note.isNotEmpty) {
+                  setState(() {
+                    _pitchResult = handledPitch;
+                    _processedNote = PitchCalculator.pitchToNote(
+                      medianPitch.pitch,
+                    );
+                  });
+                }
+              }
+            },
+            onError: (err, trace) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  Snackbars.error(context, "Failed to record audio."),
+                );
+              }
+            },
+          );
         });
   }
 
   @override
   void dispose() {
-    audioSubscription.cancel().then((_) {});
-    audioRecorder.dispose();
+    _audioSubscription.cancel().then((_) {});
+    _audioRecorder.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final value = -(pitchResult?.diffCents ?? double.nan);
-    // final value = 100.0;
-    final Color valueColor;
-    if (value < -10) {
-      valueColor = Colors.blueAccent;
-    } else if (value > 10) {
-      valueColor = Colors.redAccent;
+    final double diffValue;
+    if (_pitchResult != null) {
+      diffValue = -_pitchResult!.diffCents;
     } else {
-      valueColor = Colors.greenAccent;
+      diffValue = double.nan;
     }
 
-    final noteToken = Token(
-      pitchResult?.note ?? "--",
-      isChord: pitchResult != null,
+    final Color valueColor;
+    switch (_pitchResult?.tuningStatus) {
+      case TuningStatus.waytoolow:
+      case TuningStatus.toolow:
+        valueColor = MainTheme.blueOf(context);
+        break;
+      case TuningStatus.waytoohigh:
+      case TuningStatus.toohigh:
+        valueColor = MainTheme.redOf(context);
+        break;
+      case TuningStatus.tuned:
+        valueColor = MainTheme.greenOf(context);
+        break;
+      case TuningStatus.undefined:
+      case null:
+        valueColor = ColorScheme.of(context).onSurface.withAlpha(50);
+        break;
+    }
+
+    final noteToken = NoteToken(
+      _pitchResult?.note ?? "-",
+      isChord: _pitchResult != null,
     );
-    final expectedPitch = pitchResult?.expectedFrequency ?? double.nan;
+    final expectedPitch = _pitchResult?.expectedFrequency ?? double.nan;
 
     final figureWidth = MediaQuery.sizeOf(context).width.clamp(100, 800);
 
@@ -86,7 +153,7 @@ class _TunerMeterState extends State<TunerMeter> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          processedNote ?? "--",
+          _processedNote ?? "-",
           style: TextStyle(
             fontSize: 36,
             fontWeight: FontWeight.bold,
@@ -98,15 +165,15 @@ class _TunerMeterState extends State<TunerMeter> {
         SizedBox(
           width: figureWidth - 80,
           height: (figureWidth - 80) / 2,
-          child: ArcGraph(value: value, valueColor: valueColor),
+          child: ArcGraph(value: diffValue, valueColor: valueColor),
         ),
         Card(
           child: SizedBox(
             width: 120,
             child: Text(
               expectedPitch.isNaN
-                  ? "--"
-                  : (value >= 0 ? "+" : "") + value.toStringAsFixed(1),
+                  ? "-"
+                  : (diffValue >= 0 ? "+" : "") + diffValue.toStringAsFixed(1),
               style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
@@ -125,7 +192,7 @@ class _TunerMeterState extends State<TunerMeter> {
               Text(
                 (noteToken - 1).text,
                 style: TextStyle(
-                  color: Colors.blueAccent,
+                  color: MainTheme.blueOf(context),
                   fontWeight: FontWeight.bold,
                   fontSize: 36,
                 ),
@@ -133,7 +200,7 @@ class _TunerMeterState extends State<TunerMeter> {
               Text(
                 (noteToken + 1).text,
                 style: TextStyle(
-                  color: Colors.redAccent,
+                  color: MainTheme.redOf(context),
                   fontWeight: FontWeight.bold,
                   fontSize: 36,
                 ),

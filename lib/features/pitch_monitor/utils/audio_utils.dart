@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
+
+import 'package:permission_handler/permission_handler.dart';
 
 class AudioUtils {
   static String getAudioFileName() {
@@ -60,5 +63,18 @@ class AudioUtils {
     writeUint32(dataSize);
 
     return builder.toBytes();
+  }
+
+  static Future<bool> getMicPermission() async {
+    if (Platform.isAndroid) {
+      if (await Permission.microphone.isGranted) {
+        return true;
+      } else {
+        final status = await Permission.microphone.request();
+        return status == PermissionStatus.granted;
+      }
+    } else {
+      return true;
+    }
   }
 }

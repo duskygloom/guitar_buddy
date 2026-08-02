@@ -15,7 +15,7 @@ class Song {
   final String title, artist, content;
 
   static String getCompleteId(int id, DateTime uploadedOn) {
-    final dateString = DateTimeUtils.format(uploadedOn);
+    final dateString = DateTimeUtils.formatDatetime(uploadedOn);
     final idString = id.toString().padLeft(6, "0");
     return "$dateString-$idString";
   }

@@ -73,18 +73,45 @@ class _SongLibraryInstanceState extends ConsumerState<_SongLibraryInstance> {
       children.add(_EmptyList());
     }
 
+    return ScrollGestureDetector(
+      child: Stack(alignment: Alignment.center, children: children),
+      onScroll: () {
+        ref.read(libraryScrollingProv.notifier).state = true;
+      },
+      onReverseScroll: () {
+        if (songs.isEmpty) {
+          ref.read(libraryScrollingProv.notifier).state = false;
+        } else {
+          ref.read(libraryScrollingProv.notifier).state = true;
+        }
+      },
+    );
+  }
+}
+
+class ScrollGestureDetector extends StatelessWidget {
+  const ScrollGestureDetector({
+    super.key,
+    required this.child,
+    required this.onScroll,
+    required this.onReverseScroll,
+  });
+
+  final Widget child;
+  final void Function() onScroll, onReverseScroll;
+
+  @override
+  Widget build(BuildContext context) {
     return NotificationListener<UserScrollNotification>(
       onNotification: (notification) {
-        if (notification.direction == ScrollDirection.reverse &&
-            songs.isNotEmpty) {
-          ref.read(libraryScrollingProv.notifier).state = false;
-        } else if (notification.direction == ScrollDirection.reverse ||
-            notification.direction == ScrollDirection.forward) {
-          ref.read(libraryScrollingProv.notifier).state = true;
+        if (notification.direction == ScrollDirection.reverse) {
+          onReverseScroll();
+        } else if (notification.direction == ScrollDirection.forward) {
+          onScroll();
         }
         return false;
       },
-      child: Stack(alignment: Alignment.center, children: children),
+      child: child,
     );
   }
 }
@@ -92,7 +119,7 @@ class _SongLibraryInstanceState extends ConsumerState<_SongLibraryInstance> {
 class _EmptyList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final colorOfStuff = ColorScheme.of(context).onSurface.withAlpha(200);
+    final colorOfStuff = ColorScheme.of(context).onSurface.withAlpha(150);
     return Column(
       mainAxisSize: MainAxisSize.min,
       spacing: kDefaultFontSize,

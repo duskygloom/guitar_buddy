@@ -12,7 +12,7 @@ class ViewConfigNotifier extends Notifier<ChartViewConfig> {
   @override
   ChartViewConfig build() {
     // return ChartViewConfig(startNote: 36, notesInView: 18);
-    return ChartViewConfig(startNote: 12, notesInView: 108);
+    return ChartViewConfig(startNote: 38, notesInView: 49);
   }
 
   void setStartNote(double note) {

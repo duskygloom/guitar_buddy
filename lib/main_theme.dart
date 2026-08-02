@@ -115,4 +115,28 @@ class MainTheme {
   static ThemeData get lightTheme => _themeData(_colorScheme(Brightness.light));
 
   static Duration get clickDelay => Duration(milliseconds: 150);
+
+  static Color redOf(BuildContext context) {
+    if (Theme.brightnessOf(context) == Brightness.dark) {
+      return Colors.redAccent.shade100;
+    } else {
+      return Colors.redAccent.shade700;
+    }
+  }
+
+  static Color blueOf(BuildContext context) {
+    if (Theme.brightnessOf(context) == Brightness.dark) {
+      return Colors.blueAccent.shade100;
+    } else {
+      return Colors.blueAccent.shade700;
+    }
+  }
+
+  static Color greenOf(BuildContext context) {
+    if (Theme.brightnessOf(context) == Brightness.dark) {
+      return Colors.greenAccent.shade100;
+    } else {
+      return Colors.greenAccent.shade700;
+    }
+  }
 }

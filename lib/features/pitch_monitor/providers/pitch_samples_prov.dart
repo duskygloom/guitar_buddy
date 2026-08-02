@@ -4,13 +4,13 @@ import 'package:guitar_buddy/features/pitch_monitor/models/pitch.dart';
 import 'package:pitch_detector_dart/pitch_detector_result.dart';
 
 final pitchSamplesProv = NotifierProvider(
-  () => PitchSamplesNotifier(recordDuration: Duration(seconds: 30)),
+  () => PitchSamplesNotifier(recordSecs: 15),
 );
 
 class PitchSamplesNotifier extends Notifier<PitchStore> {
-  final Duration recordDuration;
+  final int recordSecs;
 
-  PitchSamplesNotifier({required this.recordDuration});
+  PitchSamplesNotifier({required this.recordSecs});
 
   @override
   PitchStore build() {
@@ -40,7 +40,7 @@ class PitchSamplesNotifier extends Notifier<PitchStore> {
 
     // remove old pitches
     final pitches = state.pitches;
-    final oldestTime = currentTime.subtract(recordDuration);
+    final oldestTime = currentTime.subtract(Duration(seconds: recordSecs * 5));
     var startIndex = 0;
     for (var i = 0; i < pitches.length; i++) {
       if (pitches[i].time.compareTo(oldestTime) < 0) {
