@@ -110,6 +110,7 @@ class _TunerMeterState extends State<TunerMeter> {
   void dispose() {
     _audioSubscription.cancel().then((_) {});
     _audioRecorder.dispose();
+    _pitchDetector.dispose();
     super.dispose();
   }
 
