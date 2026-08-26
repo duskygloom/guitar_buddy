@@ -27,15 +27,19 @@ class SongTile extends ConsumerWidget {
       trailing: _MoreButton(song: song),
       onTap: () async {
         final setting = await DButils.fetchSettingOf(song.id);
-        ref.read(svScrollingProv.notifier).state = false;
-        ref.read(svTransposeProv.notifier).state = setting["transpose"] == null
-            ? 0
-            : setting["transpose"] as int;
+        ref.read(songViewConfigProv.notifier).stopScrolling();
         ref
-            .read(svScrollSpeedProv.notifier)
-            .state = setting["scrollSpeed"] == null
-            ? 1.0
-            : setting["scrollSpeed"] as double;
+            .read(songViewConfigProv.notifier)
+            .setTranspose(
+              setting["transpose"] == null ? 0 : setting["transpose"] as int,
+            );
+        ref
+            .read(songViewConfigProv.notifier)
+            .setSpeed(
+              setting["scrollSpeed"] == null
+                  ? 1.0
+                  : setting["scrollSpeed"] as double,
+            );
         if (context.mounted) {
           Navigator.push(
             context,

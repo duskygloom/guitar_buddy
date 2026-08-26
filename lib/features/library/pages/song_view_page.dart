@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:guitar_buddy/features/library/models/song.dart';
 import 'package:guitar_buddy/features/library/providers/song_view_prov.dart';
+import 'package:guitar_buddy/features/library/utils/db_utils.dart';
 import 'package:guitar_buddy/features/library/widgets/song_content.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 
@@ -26,84 +27,111 @@ class SongViewPage extends StatelessWidget {
             icon: Icon(Symbols.content_copy_rounded),
           ),
           SizedBox(width: 5),
-          _ScrollButton(),
+          _AutoscrollButton(),
         ],
       ),
       body: Padding(
         padding: EdgeInsets.all(10),
-        child: Column(
-          spacing: 10,
-          children: [Expanded(child: SongContent(song: song))],
+        child: ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: Consumer(
+            builder: (context, ref, child) {
+              final numColumns = ref.watch(songViewConfigProv).columns;
+              final columns = <Widget>[];
+              for (int i = 0; i < numColumns; i++) {
+                if (i > 0) {
+                  columns.add(VerticalDivider(width: 10));
+                }
+                columns.add(
+                  Expanded(
+                    child: Column(
+                      spacing: 10,
+                      children: [Expanded(child: SongContent(song: song))],
+                    ),
+                  ),
+                );
+              }
+              return Row(children: columns);
+            },
+          ),
         ),
       ),
       floatingActionButton: Consumer(
         builder: (context, ref, child) => AnimatedSlide(
           duration: Duration(milliseconds: 200),
-          offset: ref.watch(svSongScrollingProv) || ref.watch(svScrollingProv)
+          offset:
+              ref.watch(songViewConfigProv).autoScrolling ||
+                  ref.watch(songViewConfigProv).scrolling
               ? Offset(1.5, 0)
               : Offset.zero,
           curve: Curves.easeInOutCirc,
           child: _ViewFloatingButton(),
         ),
       ),
-      bottomNavigationBar: _ViewSettings(),
+      bottomNavigationBar: _ViewSettings(song.id),
     );
   }
 }
 
 class _ViewSettings extends ConsumerWidget {
+  const _ViewSettings(this.songId);
+
+  final String songId;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    void updateSettings() {
+      DButils.modifySettings(
+        songId,
+        transpose: ref.read(songViewConfigProv).transpose,
+        scrollSpeed: ref.read(songViewConfigProv).scrollSpeed,
+      ).then((_) {});
+    }
+
     final List<Widget> items = [
       _NumberInputTile(
         title: "Transpose",
-        value: "${ref.watch(svTransposeProv)}",
+        value: "${ref.watch(songViewConfigProv).transpose}",
         addFunction: () {
-          if (ref.read(svTransposeProv) < svMaxTranspose) {
-            ref.read(svTransposeProv.notifier).state++;
-          }
+          ref.read(songViewConfigProv.notifier).transposeUp;
+          updateSettings();
         },
         removeFunction: () {
-          if (ref.read(svTransposeProv) > svMinTranspose) {
-            ref.read(svTransposeProv.notifier).state--;
-          }
+          ref.read(songViewConfigProv.notifier).transposeDown;
+          updateSettings();
         },
       ),
       _NumberInputTile(
         title: "Scroll speed",
-        value: "${ref.watch(svScrollSpeedProv)}",
+        value: "${ref.watch(songViewConfigProv).scrollSpeed}",
         addFunction: () {
-          if (ref.read(svScrollSpeedProv) < svMaxSpeed) {
-            ref.read(svScrollSpeedProv.notifier).state += 0.5;
-          }
+          ref.read(songViewConfigProv.notifier).speedUp;
+          updateSettings();
         },
         removeFunction: () {
-          if (ref.read(svScrollSpeedProv) > svMinSpeed) {
-            ref.read(svScrollSpeedProv.notifier).state -= 0.5;
-          }
+          ref.read(songViewConfigProv.notifier).speedDown;
+          updateSettings();
         },
         addIcon: Symbols.fast_forward_rounded,
         removeIcon: Symbols.fast_rewind_rounded,
       ),
       _NumberInputTile(
+        title: "Columns",
+        value: "${ref.watch(songViewConfigProv).columns}",
+        addFunction: ref.read(songViewConfigProv.notifier).columnsIncr,
+        removeFunction: ref.read(songViewConfigProv.notifier).columnsDecr,
+      ),
+      _NumberInputTile(
         title: "Font size",
-        value: "${ref.watch(svFontSizeProv)}",
-        addFunction: () {
-          if (ref.read(svFontSizeProv) < svMaxFontSize) {
-            ref.read(svFontSizeProv.notifier).state++;
-          }
-        },
-        removeFunction: () {
-          if (ref.read(svFontSizeProv) > svMinFontSize) {
-            ref.read(svFontSizeProv.notifier).state--;
-          }
-        },
+        value: "${ref.watch(songViewConfigProv).fontSize}",
+        addFunction: ref.read(songViewConfigProv.notifier).fontSizeUp,
+        removeFunction: ref.read(songViewConfigProv.notifier).fontSizeDown,
         addIcon: Symbols.zoom_in_rounded,
         removeIcon: Symbols.zoom_out_rounded,
       ),
     ];
 
-    return ref.watch(svShowSettingsProv)
+    return ref.watch(songViewConfigProv).showSettings
         ? Container(
             height: 100,
             color: ColorScheme.of(context).surfaceContainer,
@@ -132,15 +160,11 @@ class _ViewFloatingButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return FloatingActionButton(
       tooltip: "Toggle settings",
+      onPressed: ref.read(songViewConfigProv.notifier).toggleSettings,
       child: Text(
-        "${ref.watch(svTransposeProv)}",
+        "${ref.watch(songViewConfigProv).transpose}",
         style: GoogleFonts.sen(fontSize: 25, fontWeight: FontWeight.bold),
       ),
-      onPressed: () {
-        ref.read(svShowSettingsProv.notifier).state = !ref.read(
-          svShowSettingsProv,
-        );
-      },
     );
   }
 }
@@ -196,17 +220,16 @@ class _NumberInputTile extends StatelessWidget {
   }
 }
 
-class _ScrollButton extends ConsumerWidget {
+class _AutoscrollButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final scrolling = ref.watch(svScrollingProv);
     return IconButton.filledTonal(
       tooltip: "Autoscroll",
-      onPressed: () {
-        ref.read(svScrollingProv.notifier).state = !ref.read(svScrollingProv);
-      },
+      onPressed: ref.read(songViewConfigProv.notifier).toggleAutoscroll,
       icon: Icon(
-        scrolling ? Symbols.pause_rounded : Symbols.play_arrow_rounded,
+        ref.watch(songViewConfigProv).autoScrolling
+            ? Symbols.pause_rounded
+            : Symbols.play_arrow_rounded,
       ),
     );
   }

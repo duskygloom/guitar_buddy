@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:guitar_buddy/features/tuner/models/chord_parser.dart';
-import 'package:guitar_buddy/features/library/utils/db_utils.dart';
 import 'package:guitar_buddy/features/library/models/song.dart';
 import 'package:guitar_buddy/features/library/providers/song_view_prov.dart';
 
@@ -18,42 +17,25 @@ class SongContent extends ConsumerStatefulWidget {
 }
 
 class _SongContentState extends ConsumerState<SongContent> {
-  double fontSize = kDefaultFontSize;
   double oldFontSize = kDefaultFontSize;
 
   final scroller = ScrollController();
   Timer? scrollTimer;
 
-  late int transpose;
-  late double scrollSpeed;
-
-  @override
-  void initState() {
-    super.initState();
-    fontSize = ref.read(svFontSizeProv);
-    transpose = ref.read(svTransposeProv);
-    scrollSpeed = ref.read(svScrollSpeedProv);
-  }
-
   @override
   void dispose() {
-    DButils.modifySettings(
-      widget.song.id,
-      transpose: transpose,
-      scrollSpeed: scrollSpeed,
-    ).then((_) {});
     scroller.dispose();
     scrollTimer?.cancel();
     super.dispose();
   }
 
-  void _startScrolling() {
+  void _startAutoscroll() {
     if (scrollTimer != null) {
       scrollTimer!.cancel();
     }
     scrollTimer = Timer.periodic(Duration(milliseconds: 100), (timer) async {
       if (scroller.hasClients) {
-        final speed = ref.read(svScrollSpeedProv);
+        final speed = ref.read(songViewConfigProv).scrollSpeed;
         final maxPosition = scroller.position.maxScrollExtent;
         final currPosition = scroller.offset;
         if (currPosition + speed < maxPosition) {
@@ -63,38 +45,33 @@ class _SongContentState extends ConsumerState<SongContent> {
             curve: Curves.linear,
           );
         } else {
-          _stopScrolling();
+          _stopAutoscroll();
         }
       } else {
-        _stopScrolling();
+        _stopAutoscroll();
       }
     });
   }
 
-  void _stopScrolling() {
+  void _stopAutoscroll() {
     scrollTimer?.cancel();
-    ref.read(svScrollingProv.notifier).state = false;
+    ref.read(songViewConfigProv.notifier).stopScrolling();
   }
 
   @override
   Widget build(BuildContext context) {
-    final scrolling = ref.watch(svScrollingProv);
     final tokens = ChordParser.parse(widget.song.content);
 
-    if (scrolling) {
-      _startScrolling();
-    } else {
-      _stopScrolling();
-    }
+    final fontSize = ref.watch(songViewConfigProv).fontSize;
+    final transpose = ref.watch(songViewConfigProv).transpose;
 
-    ref.listen(svTransposeProv, (old, curr) {
-      if (mounted) {
-        setState(() => transpose = curr);
-      }
-    });
-    ref.listen(svScrollSpeedProv, (old, curr) {
-      if (mounted) {
-        setState(() => scrollSpeed = curr);
+    ref.listen(songViewConfigProv, (old, curr) {
+      if (mounted && old?.autoScrolling != curr.autoScrolling) {
+        if (curr.autoScrolling) {
+          _startAutoscroll();
+        } else {
+          _stopAutoscroll();
+        }
       }
     });
 
@@ -104,14 +81,9 @@ class _SongContentState extends ConsumerState<SongContent> {
       },
       onScaleUpdate: (details) {
         final size = (details.scale * oldFontSize)
-            .clamp(10.0, 40.0)
+            .clamp(SongViewConfig.minFontSize, SongViewConfig.maxFontSize)
             .roundToDouble();
-        setState(() {
-          fontSize = size;
-        });
-      },
-      onScaleEnd: (details) {
-        ref.read(svFontSizeProv.notifier).state = fontSize;
+        ref.read(songViewConfigProv.notifier).setFontSize(size);
       },
       onTap: () {
         // scale update stops working sometimes
@@ -121,10 +93,10 @@ class _SongContentState extends ConsumerState<SongContent> {
       child: NotificationListener<UserScrollNotification>(
         onNotification: (notification) {
           if (notification.direction == ScrollDirection.reverse) {
-            ref.read(svSongScrollingProv.notifier).state = true;
+            ref.read(songViewConfigProv.notifier).startScrolling();
           }
           if (notification.direction == ScrollDirection.forward) {
-            ref.read(svSongScrollingProv.notifier).state = false;
+            ref.read(songViewConfigProv.notifier).stopScrolling();
           }
           return true;
         },

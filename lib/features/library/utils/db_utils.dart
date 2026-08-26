@@ -151,8 +151,6 @@ class DButils {
         );
       }
       return newId;
-    } catch (e) {
-      throw Exception("could not modify song setting");
     } finally {
       await db.close();
     }

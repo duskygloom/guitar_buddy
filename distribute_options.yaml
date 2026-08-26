@@ -14,4 +14,3 @@ releases:
         package:
           platform: linux
           target: appimage
-

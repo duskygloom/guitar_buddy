@@ -26,7 +26,7 @@ class PitchMonitor extends ConsumerStatefulWidget {
 
 class _PitchMonitorState extends ConsumerState<PitchMonitor> {
   final _recorder = AudioRecorder();
-  final int bufferSize = PitchDetector.DEFAULT_BUFFER_SIZE;
+  final int bufferSize = PitchDetector.DEFAULT_BUFFER_SIZE * 2;
   // technically, hopsize is the same as buffersize to use up
   // all the extra bytes collected
   late final int hopSize = bufferSize ~/ 2;
@@ -73,7 +73,6 @@ class _PitchMonitorState extends ConsumerState<PitchMonitor> {
             }
             // implementing rolling buffer
             final collection = <PitchDetectorResult>[];
-            _audioBuffer.clear();
             _audioBuffer.addAll(data);
             for (
               ;

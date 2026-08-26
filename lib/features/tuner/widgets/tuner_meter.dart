@@ -27,7 +27,7 @@ class TunerMeter extends StatefulWidget {
 }
 
 class _TunerMeterState extends State<TunerMeter> {
-  final bufferSize = PitchDetector.DEFAULT_BUFFER_SIZE;
+  final bufferSize = PitchDetector.DEFAULT_BUFFER_SIZE * 2;
   late final hopSize = bufferSize ~/ 2;
 
   final _audioRecorder = AudioRecorder();
