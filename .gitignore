@@ -49,3 +49,4 @@ app.*.map.json
 
 dist/
 .vscode/
+android/build/
