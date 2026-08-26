@@ -76,7 +76,7 @@ class _SongLibraryInstanceState extends ConsumerState<_SongLibraryInstance> {
     return ScrollGestureDetector(
       child: Stack(alignment: Alignment.center, children: children),
       onScroll: () {
-        ref.read(libraryScrollingProv.notifier).state = true;
+        ref.read(libraryScrollingProv.notifier).state = false;
       },
       onReverseScroll: () {
         if (songs.isEmpty) {

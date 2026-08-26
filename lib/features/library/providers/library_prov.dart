@@ -6,4 +6,4 @@ final libraryRefreshKeyProv = Provider(
   (ref) => GlobalKey<RefreshIndicatorState>(),
 );
 
-final libraryScrollingProv = StateProvider((ref) => true);
+final libraryScrollingProv = StateProvider((ref) => false);

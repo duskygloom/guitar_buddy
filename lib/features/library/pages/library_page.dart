@@ -30,12 +30,14 @@ class LibraryPage extends StatelessWidget {
         ),
       ),
       floatingActionButton: Consumer(
-        builder: (context, ref, child) => AnimatedScale(
-          duration: Duration(milliseconds: 400),
-          scale: ref.watch(libraryScrollingProv) ? 1.0 : 0.0,
-          curve: Curves.easeInOutCirc,
-          child: _ActionButton(),
-        ),
+        builder: (context, ref, child) {
+          return AnimatedScale(
+            duration: Duration(milliseconds: 400),
+            scale: ref.watch(libraryScrollingProv) ? 0.0 : 1.0,
+            curve: Curves.easeInOutCirc,
+            child: _ActionButton(),
+          );
+        },
       ),
     );
   }
