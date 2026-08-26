@@ -21,6 +21,17 @@ Guitar utility application.
 1. Download AppImage from releases.
 2. Execute.
 
+## Screenshots
+- Library page
+  ![screenshots/library_page.png](screenshots/library_page.png)
+- Song page
+  ![screenshots/song_page.png](screenshots/song_page.png)
+- Tuner
+  ![screenshots/tuner.png](screenshots/tuner.png)
+- Metronome
+  ![screenshots/metronome.png](screenshots/metronome.png)
+- Pitch monitor (bad performance due to noise and insufficient post-processing)
+  ![screenshots/pitch_monitor.png](screenshots/pitch_monitor.png)
 
 ## Common issues and fixes
 
